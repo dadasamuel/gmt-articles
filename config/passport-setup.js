@@ -22,7 +22,8 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/google/callback",
+      // callbackURL: "/google/callback",
+      callbackURL: process.env.NODE_ENV === "production" ? "https://gmt-articles.herokuapp.com/" : "http://localhost:8000/google/callback"
     },
     async (accessToken, refreshToken, profile, done) => {
       console.log(profile);
