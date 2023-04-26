@@ -24,23 +24,50 @@ exports.createPost = async (req, res) => {
 
 exports.viewAllPost = async (req, res) => {
     try {
-        let page = req.query.page
-        const limit = 10;
-        page = Number(page)
-        offset = (page - 1) * limit
+        const page = parseInt(req.params.page) || 1;
+        const limit = parseInt(req.params.limit) || 10;
+        const offset = (page -1) * limit;
 
-        if (!page) {
-            const result=  await pool.query("SELECT * FROM post")
-            return result.rows
+        let sql = 'SELECT * FROM post';
+        if (req.params.page || req.params.limit) {
+            sql += ` LIMIT ${limit} OFFSET ${offset}`;
         }
+        const data = await pool.query(sql);
 
-        const result = await pool.query("SELECT * FROM post LIMIT $1 offset $2",[limit, offset])
-        if (result.rows <= 0) return res.status(400).json({message: "The page yu're looking for doe not exist"})
-        return result.rows
-        
+        return res.status(200).json({
+            message: 'All post retrieved successfully',
+            data: data.rows,
+        });
+
     } catch (error) {
         return res.status(500).json({
             message: error.message,
         });
     }
 };
+
+
+exports.deletePost = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const sql = "DELETE FROM post WHERE id = $1";
+        const data = await pool.query(sql, [postId]);
+        if (data.rowCount === 0) {
+            return res.status(404).json({
+                message: "Post not found",
+            });
+        }
+        res.status(200).json({
+            message: "Post deleted successfully",
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Internal server error",
+            error: err.message,
+        });
+    }
+};
+
+
+
