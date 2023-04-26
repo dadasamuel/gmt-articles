@@ -11,7 +11,7 @@ router.get("/all-post/:page/:limit", isAuthenticated, viewAllPost);
 router.post("/comment", isAuthenticated, createComment);
 router.post("/payment",isAuthenticated, payment);
 router.post("/confirm-payment", confirmPayment);
-router.delete("/delete/:id", isAuthenticated, deletePost);
+router.delete("/delete/:id", isAuthenticated, isAdmin, deletePost);
 
 const userRoute = router
 
