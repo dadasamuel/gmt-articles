@@ -11,3 +11,5 @@ CREATE TABLE
     );
 
     DROP TABLE post;
+
+    SELECT * FROM post limit 1 offset  4

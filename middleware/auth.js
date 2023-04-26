@@ -1,13 +1,13 @@
 const { pool } = require("../database/db");
+const jwt = require("jsonwebtoken")
 
 
 exports.isAdmin = async (req, res, next) => {
     try {
-        const { roles } = req.user;
-        if (roles === user)
-            return res.status(401).json("you do not have permission to access..");
-        else {
+        if (req.user.roles === 'admin')
             next();
+        else {
+            return res.status(401).json("you do not have permission to access..");
         }
     } catch (error) {
         console.error("Error", error);
@@ -16,7 +16,7 @@ exports.isAdmin = async (req, res, next) => {
 
 exports.allow = async (req, res, next) => {
     try {
-        const {status, roles } = req.user;
+        const { status, roles } = req.user;
         if (status == "Not-Subscribed" && roles == "user") {
             return res.status(401).json({
                 message: "payment required",
@@ -44,6 +44,6 @@ exports.isAuthenticated = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
-        return res.status(401).json ( "Authentication failed: 🔒🔒🔒🔒🔒");
+        return res.status(401).json("Authentication failed: 🔒🔒🔒🔒🔒");
     }
 };

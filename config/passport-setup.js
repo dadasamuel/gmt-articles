@@ -33,11 +33,12 @@ passport.use(
         { email: profile.emails[0].value }
       );
 
-      const { rows } = await pool.query(
+      const  row  = await pool.query(
         "SELECT * FROM users WHERE userid = $1",
         [profile.id]
       );
-      const currentUser = rows[0];
+      const currentUser = row.rows[0];
+      console.log(currentUser)
 
      
 
@@ -52,7 +53,7 @@ passport.use(
         const newUser = {
           userid: profile.id,
           firstName: profile.displayName,
-          email: profile.emails[0],
+          email: profile.emails[0].value,
         };
         const token = jwt.sign(newUser, process.env.JWT_SECRETKEY, {expiresIn: '4hr'},)
         console.log(token);

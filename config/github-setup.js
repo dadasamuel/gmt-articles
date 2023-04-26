@@ -32,11 +32,11 @@ passport.use(
                 { email: profile.profileUrl }
             );
 
-            const { rows } = await pool.query(
+            const row = await pool.query(
                 "SELECT * FROM users WHERE userid = $1",
                 [profile.id]
             );
-            const currentUser = rows[0];
+            const currentUser = row.rows[0];
 
             if (currentUser) {
                 const token = jwt.sign(currentUser, process.env.JWT_SECRETKEY, { expiresIn: "4hr" })

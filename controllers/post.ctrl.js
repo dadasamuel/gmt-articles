@@ -1,17 +1,18 @@
 const { pool } = require("../database/db");
 const { allow } = require("../middleware/auth");
 
-exports.createPost = async (req, res, next) => {
+exports.createPost = async (req, res) => {
     const { post_title, post_body, attachment } = req.body
-    const userid = req.users.id
+    const id = req.user.id
     try {
-       const newPost = await pool.query(
+        console.log(id);
+        const newPost = await pool.query(
             "INSERT INTO post (post_title, post_body, attachment, userid) VALUES ($1, $2, $3, $4) RETURNING *",
-            [post_title, post_body, attachment, userid]
+            [post_title, post_body, attachment, id]
         );
-        return res.status(201).json ({
+        return res.status(201).json({
             message: "Post successfully created",
-            newPost,
+            post: newPost.rows[0],
         });
     } catch (error) {
         return res.status(500).json({
@@ -21,21 +22,25 @@ exports.createPost = async (req, res, next) => {
 }
 
 
-exports.viewAllPost = async (req, res, next) => {
+exports.viewAllPost = async (req, res) => {
     try {
-        // pagination
-        const allPost = await pool.query(
-            "SELECT * FROM post By id LIMIT 10 OFFSET (2 - 1) * 10"
-        );
-        const count = await pool.query("SELECT COUNT(*)FROM post");
-        return res.status(200).json({
-            message: "post fetch successfully",
-            count: count.rows[0],
-            allPost: allPost.rows,
-        });
+        let page = req.query.page
+        const limit = 10;
+        page = Number(page)
+        offset = (page - 1) * limit
+
+        if (!page) {
+            const result=  await pool.query("SELECT * FROM post")
+            return result.rows
+        }
+
+        const result = await pool.query("SELECT * FROM post LIMIT $1 offset $2",[limit, offset])
+        if (result.rows <= 0) return res.status(400).json({message: "The page yu're looking for doe not exist"})
+        return result.rows
+        
     } catch (error) {
         return res.status(500).json({
             message: error.message,
-    });
+        });
     }
 };
